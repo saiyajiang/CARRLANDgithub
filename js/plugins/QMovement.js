@@ -3077,11 +3077,11 @@ function ColliderManager() {
       dx = final.x - this._px;
       dy = final.y - this._py;
       if (Math.atan2(dy, dx) !== radian) {
-        final.x = this._px;
-        final.y = this._py;
+        final.x = this._px-= distX;
+        final.y = this._py-= distY;
         break;
       }
-    }
+    }//跳跃不会原地跳跃
     this.moveColliders(this._px, this._py);
     return final;
   };

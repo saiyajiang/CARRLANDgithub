@@ -6721,7 +6721,7 @@ Game_CharacterBase.prototype.moveDiagonally = function(horz, vert) {
     }
 };
 
-Game_CharacterBase.prototype.jump = function(xPlus, yPlus) {
+Game_CharacterBase.prototype.jump = function(xPlus, yPlus, jumpheight, jumpduration) {
     if (Math.abs(xPlus) > Math.abs(yPlus)) {
         if (xPlus !== 0) {
             this.setDirection(xPlus < 0 ? 4 : 6);
@@ -6731,10 +6731,16 @@ Game_CharacterBase.prototype.jump = function(xPlus, yPlus) {
             this.setDirection(yPlus < 0 ? 8 : 2);
         }
     }
+	if (jumpheight == null){
+		jumpheight = 0
+	}
+    if (jumpduration == null){
+		jumpduration = 0
+	}
     this._x += xPlus;
     this._y += yPlus;
     var distance = Math.round(Math.sqrt(xPlus * xPlus + yPlus * yPlus));
-    this._jumpPeak = 10 + distance - this._moveSpeed;
+    this._jumpPeak = 10 + distance - this._moveSpeed + jumpheight;
     this._jumpCount = this._jumpPeak * 2;
     this.resetStopCount();
     this.straighten();

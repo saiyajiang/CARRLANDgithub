@@ -695,7 +695,7 @@ Game_Actor.prototype.levelUp = function() {
     if (Lecode.S_Notifs.params.pNotifLevelUp === 'false')
         return;
     var text = Lecode.S_Notifs.params.pNotifLevelUp.replace('[name]',this.name());
-    LeNotifManager.add(text,"levelup");
+    // LeNotifManager.add(text,"levelup");
 };
 
 //---- Level Down
@@ -705,7 +705,7 @@ Game_Actor.prototype.levelDown = function() {
     if (Lecode.S_Notifs.params.pNotifLevelDown === 'false')
         return;
     var text = Lecode.S_Notifs.params.pNotifLevelDown.replace('[name]',this.name());
-    LeNotifManager.add(text,"leveldown");
+    // LeNotifManager.add(text,"leveldown");
 };
 
 
@@ -720,7 +720,7 @@ AudioManager.playBgm = function(bgm, pos) {
         return;
     if (SceneManager._scene instanceof Scene_Map) {
         var text = Lecode.S_Notifs.params.pNotifBgm.replace('[name]',bgm.name);
-        LeNotifManager.add(text,"bgm");
+        // LeNotifManager.add(text,"bgm");
     }
 };
 

@@ -1318,30 +1318,30 @@ Window_ItemList.prototype.drawItemNumber = function(item, dx, dy, dw) {
 };
 
 Window_ItemList.prototype.drawItemCarryNumber = function(item, dx, dy, dw) {
-    /*if (DataManager.isItem(item)) {
-      var index = $gameParty.items().indexOf(item);
-    } else if (DataManager.isWeapon(item)) {
-      var index = $gameParty.weapons().indexOf(item);
-    } else if (DataManager.isArmor(item)) {
-      var index = $gameParty.armors().indexOf(item);
-    }
-    if (index < 0) return this.drawEquippedActor(item, dx, dy, dw);
-    index += 1;
-    var max = $gameParty.getIndependentItemTypeMax(item);
-    var fmt = Yanfly.Param.ItemCarryFmt;
-    var text = fmt.format(Yanfly.Util.toGroup(index), Yanfly.Util.toGroup(max));
-    if (Yanfly.Param.ItemQuantitySize) {
-      this.contents.fontSize = Yanfly.Param.ItemQuantitySize;
-    }
-    if (index > max) {
-      this.changeTextColor(this.powerDownColor());
-    } else if (index === max) {
-      this.changeTextColor(this.crisisColor());
-    } else {
-      this.changeTextColor(this.normalColor());
-    }
-    this.drawText(text, dx, dy, dw, 'right');
-    this.resetFontSettings();*/
+    // if (DataManager.isItem(item)) {
+    //   var index = $gameParty.items().indexOf(item);
+    // } else if (DataManager.isWeapon(item)) {
+    //   var index = $gameParty.weapons().indexOf(item);
+    // } else if (DataManager.isArmor(item)) {
+    //   var index = $gameParty.armors().indexOf(item);
+    // }
+    // if (index < 0) return this.drawEquippedActor(item, dx, dy, dw);
+    // index += 1;
+    // var max = $gameParty.getIndependentItemTypeMax(item);
+    // var fmt = Yanfly.Param.ItemCarryFmt;
+    // var text = fmt.format(Yanfly.Util.toGroup(index), Yanfly.Util.toGroup(max));
+    // if (Yanfly.Param.ItemQuantitySize) {
+    //   this.contents.fontSize = Yanfly.Param.ItemQuantitySize;
+    // }
+    // if (index > max) {
+    //   this.changeTextColor(this.powerDownColor());
+    // } else if (index === max) {
+    //   this.changeTextColor(this.crisisColor());
+    // } else {
+    //   this.changeTextColor(this.normalColor());
+    // }
+    // this.drawText(text, dx, dy, dw, 'right');
+    // this.resetFontSettings();
 };
 
 Window_ItemList.prototype.drawEquippedActor = function(item, dx, dy, dw) {
