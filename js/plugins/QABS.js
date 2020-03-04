@@ -1293,7 +1293,7 @@ function QABSManager() {
   };
 
   QABSManager._animations = [];
-  QABSManager.startAnimation = function(id, x, y, angle) {
+  QABSManager.startAnimation = function(id, x, y) {
     var scene = SceneManager._scene;
     if (scene.constructor !== Scene_Map) return;
     if (id < 0) id = 1;
@@ -1301,10 +1301,6 @@ function QABSManager() {
     var animation = $dataAnimations[id];
     var temp = new Sprite_MapAnimation(animation);
     temp.move(x, y);
-	if(angle == null){
-		angle = 0
-	}
-	temp.rotation = angle;
     this._animations.push(temp);
     scene._spriteset._tilemap.addChild(temp);
   };
@@ -1637,10 +1633,6 @@ function Skill_Sequencer() {
         this.userMovedistance(action);
         break;
       }
-	  case 'speedenemy': {
-        this.userSpeedmoveenemy(action);
-        break;
-	  }
 	  //技能增项
 	  case 'speeddoubleslash': {
         this.userSpeeddoubleslash(action);
@@ -1680,18 +1672,6 @@ function Skill_Sequencer() {
         this._skill.animationTarget = Number(action[1]) || 0;
         break;
       }
-	  case 'animationelement': {
-        this.actionAnimationElement(action);
-        break;
-      }
-	  case 'animationweapontype': {
-        this.actionAnimationWeapontype(action);
-        break;
-      }
-	  case 'forceskill': {
-        this.actionForceSkill(action);
-        break;
-	  }
     }
   };
 
@@ -1751,29 +1731,17 @@ function Skill_Sequencer() {
     var i = this._character._skillLocked.indexOf(this._skill);
     if (i >= 0) return;
     this._character._skillLocked.push(this._skill);
-	$gamePlayer._isLocked = true
   };
 
   Skill_Sequencer.prototype.userUnlock = function() {
     var i = this._character._skillLocked.indexOf(this._skill);
     if (i >= 0) {
       this._character._skillLocked.splice(i, 1);
-	  $gamePlayer._isLocked = false
     }
   };
-   //移动速度+(2-$gameVariables.value(movespeedvariables)/200)
+   //移动速度
    Skill_Sequencer.prototype.userSpeedmove = function(action) {
-    var v = Number(movespeeddefault+($gameVariables.value(movespeedvariables)));
-	var s = Number(action[1]) || 0;
-    if (action[0] === 'inc') {
-      this._character.setMoveSpeed(v+s);
-    } else if (action[0] === 'dec') {
-      this._character.setMoveSpeed(v+s);
-    }
-  };
-  
-   Skill_Sequencer.prototype.userSpeedmoveenemy = function(action) {
-    var v = Number(3);
+    var v = Number(movespeeddefault+($gameVariables.value(movespeedvariables)/movespeedad));
 	var s = Number(action[1]) || 0;
     if (action[0] === 'inc') {
       this._character.setMoveSpeed(v+s);
@@ -1868,7 +1836,6 @@ function Skill_Sequencer() {
       this._character.setDirectionFix(true);
     }
     this._character.pixelJump(dx, dy);
-	//console.log(this);
     this._character.setDirectionFix(lastDirectionFix);
     this._character.setRadian(oldRadian);
     this._waitForUserJump = action[2] ? action[2] === 'true' : false;
@@ -2178,8 +2145,6 @@ function Skill_Sequencer() {
     this._character._skillCooldowns[id] = skill.settings.cooldown;
   };
 /////////////////////////////////////////////////////////////////////////////////////////
-
-  
   Skill_Sequencer.prototype.actionMoveSkill = function(distance, duration) {
     var instant = duration === 0;
     if (duration <= 0) duration = 1;
@@ -2575,29 +2540,7 @@ function Skill_Sequencer() {
 /*
 //自定义属性---------------------------------------------------------------------------------------------------------------------
 */
-//攻击属性动画
-  Skill_Sequencer.prototype.actionAnimationElement = function(action) {
-	for( var i = 0 ; i < $gameActors.actor($gameVariables.value(1)).equips()[0].traits.length ; i++ ){
-		if($gameActors.actor($gameVariables.value(1)).equips()[0].traits[i].code == 31){
-			var weaponelement = $gameActors.actor($gameVariables.value(1)).equips()[0].traits[i].dataId+150;
-			};
-		};
-	 var id = weaponelement;
-	 var x = this._skill.collider.center.x;
-	 var y = this._skill.collider.center.y;
-    QABSManager.startAnimation(id, x, y);
-  };
-  
- //武器类型动画
-    Skill_Sequencer.prototype.actionAnimationWeapontype = function(action) {
-	 var id = $dataWeapons[$gameActors.actor($gameVariables.value(1))._equips[0]._itemId].wtypeId+160;
-	 var x = this._skill.collider.center.x;
-	 var y = this._skill.collider.center.y;
-	 angle = ($gamePlayer.direction()-2)*90
-    QABSManager.startAnimation(id, x, y, angle);
-  };
-  
-  
+
   //攻速加成
     Skill_Sequencer.prototype.actionWaitattack = function(action) {
     var duration = Number(action[0])*(attackspeedad/($gameVariables.value(attackspeedvariables)+attackspeedad));
@@ -2614,39 +2557,39 @@ function Skill_Sequencer() {
 
   
    
-  // //角色移动可以有距离加成
-  //  Skill_Sequencer.prototype.userMovedistance = function(action) {
-  //   var dist = Number(action[1])+$gameVariables.value(53) || this._character.moveTiles();
-  //   var route = {
-  //     list: [],
-  //     repeat: false,
-  //     skippable: true,
-  //     wait: false
-  //   }
-  //   var radian = oldRadian = this._character._radian;
-  //   if (action[0] === 'backward') {
-  //     radian -= Math.PI;
-  //   }
-  //   route.list.push({
-  //     code: Game_Character.ROUTE_SCRIPT,
-  //     parameters: ['qmove2(' + radian + ',' + dist + ')']
-  //   });
-  //   if (action[0] === 'backward') {
-  //     route.list.unshift({
-  //       code: Game_Character.ROUTE_DIR_FIX_OFF
-  //     });
-  //     route.list.push({
-  //       code: this._character.isDirectionFixed() ?
-  //         Game_Character.ROUTE_DIR_FIX_ON : Game_Character.ROUTE_DIR_FIX_OFF
-  //     });
-  //   }
-  //   route.list.push({
-  //     code: Game_Character.ROUTE_END
-  //   });
-  //   this._character.forceMoveRoute(route);
-  //   this._character.updateRoutineMove();
-  //   this._waitForUserMove = action[2] ? action[2] === 'true' : false;
-  // };
+  //角色移动可以有距离加成
+   Skill_Sequencer.prototype.userMovedistance = function(action) {
+    var dist = Number(action[1])+$gameVariables.value(53) || this._character.moveTiles();
+    var route = {
+      list: [],
+      repeat: false,
+      skippable: true,
+      wait: false
+    }
+    var radian = oldRadian = this._character._radian;
+    if (action[0] === 'backward') {
+      radian -= Math.PI;
+    }
+    route.list.push({
+      code: Game_Character.ROUTE_SCRIPT,
+      parameters: ['qmove2(' + radian + ',' + dist + ')']
+    });
+    if (action[0] === 'backward') {
+      route.list.unshift({
+        code: Game_Character.ROUTE_DIR_FIX_OFF
+      });
+      route.list.push({
+        code: this._character.isDirectionFixed() ?
+          Game_Character.ROUTE_DIR_FIX_ON : Game_Character.ROUTE_DIR_FIX_OFF
+      });
+    }
+    route.list.push({
+      code: Game_Character.ROUTE_END
+    });
+    this._character.forceMoveRoute(route);
+    this._character.updateRoutineMove();
+    this._waitForUserMove = action[2] ? action[2] === 'true' : false;
+  };
   
     Skill_Sequencer.prototype.targetJumpawayfukong = function(action, targets, height) {
     var dist = Number(action[1]) || 0;
@@ -2694,306 +2637,306 @@ function Skill_Sequencer() {
     var dist = Number(action[1]) || 0;
     for (var i = 0; i < targets.length; i++) {
 	
-	      var dist2 = dist - dist * eval('targets[i].battler().' + QABS.mrst);
-	      if (dist2 <= 0) return;
-	      var dx = targets[i].cx() - this._character.cx();
-	      var dy = targets[i].cy() - this._character.cy();
-	      var radian = Math.atan2(dy, dx);
-	      radian += radian < 0 ? Math.PI * 2 : 0;
-	      if (action[0] === 'towards') {
-	        radian += Math.PI;
-	      } else if (action[0] === 'into' || action[0] === 'towardsSkill') {
-	        var dxi = this._skill.collider.center.x - targets[i].cx();
-	        var dyi = this._skill.collider.center.y - targets[i].cy();
-	        radian = Math.atan2(dyi, dxi);
-	        dist2 = Math.min(dist2, Math.sqrt(dxi * dxi + dyi * dyi));
-	      } else if (action[0] === 'awayFromSkill') {
-	        var dxi = targets[i].cx() - this._skill.collider.center.x;
-	        var dyi = targets[i].cy() - this._skill.collider.center.y;
-	        radian = Math.atan2(dyi, dxi);
-	        dist2 = Math.min(dist2, Math.sqrt(dxi * dxi + dyi * dyi));
-	      }
-	      var x1 = targets[i].px;
-	      var y1 = targets[i].py;
-	      var x2 = x1 + Math.round(dist2 * Math.cos(radian));
-	      var y2 = y1 + Math.round(dist2 * Math.sin(radian));
-	      var final = targets[i].adjustPosition(x2, y2);
-	      dx = final.x - x1;
-	      dy = final.y - y1;
-	      var lastDirectionFix = targets[i].isDirectionFixed();
-	      var prevRadian = targets[i]._radian;
-	      targets[i].setDirectionFix(true);
-		  //this._character.setMoveSpeed(spd);
-		  $gameSwitches.setValue(4, false)
-		  targets[i].setMoveSpeed(-Number(action[2]));
-	      targets[i].pixelJump(dx, dy);
-	      targets[i].setDirectionFix(lastDirectionFix);
-	      targets[i].setRadian(prevRadian);
-		  //targets[i].setMoveSpeed(Number(movespeeddefault+($gameVariables.value(movespeedvariables)/movespeedad)));
-		  $gameSwitches.setValue(4, true)
-    	}
-  	};
-
-  // //跳跃可以有距离加成
-  //   Skill_Sequencer.prototype.userJumpdistance = function(action) {
-  //   var dist = Number(action[1])+$gameVariables.value(53)	|| 0;
-  //   var x1 = this._character.px;
-  //   var y1 = this._character.py;
-  //   var radian = oldRadian = this._character._radian;
-  //   if (action[0] === 'backward') {
-  //     radian -= Math.PI;
-  //   }
-  //   var x2 = x1 + Math.cos(radian) * dist;
-  //   var y2 = y1 + Math.sin(radian) * dist;
-  //   var final = this._character.adjustPosition(x2, y2);
-  //   var dx = final.x - x1;
-  //   var dy = final.y - y1;
-  //   var lastDirectionFix = this._character.isDirectionFixed();
-  //   if (action[0] === 'backward') {
-  //     this._character.setDirectionFix(true);
-  //   }
-  //   this._character.pixelJump(dx, dy);
-  //   this._character.setDirectionFix(lastDirectionFix);
-  //   this._character.setRadian(oldRadian);
-  //   this._waitForUserJump = action[2] ? action[2] === 'true' : false;
-  // };
+      var dist2 = dist - dist * eval('targets[i].battler().' + QABS.mrst);
+      if (dist2 <= 0) return;
+      var dx = targets[i].cx() - this._character.cx();
+      var dy = targets[i].cy() - this._character.cy();
+      var radian = Math.atan2(dy, dx);
+      radian += radian < 0 ? Math.PI * 2 : 0;
+      if (action[0] === 'towards') {
+        radian += Math.PI;
+      } else if (action[0] === 'into' || action[0] === 'towardsSkill') {
+        var dxi = this._skill.collider.center.x - targets[i].cx();
+        var dyi = this._skill.collider.center.y - targets[i].cy();
+        radian = Math.atan2(dyi, dxi);
+        dist2 = Math.min(dist2, Math.sqrt(dxi * dxi + dyi * dyi));
+      } else if (action[0] === 'awayFromSkill') {
+        var dxi = targets[i].cx() - this._skill.collider.center.x;
+        var dyi = targets[i].cy() - this._skill.collider.center.y;
+        radian = Math.atan2(dyi, dxi);
+        dist2 = Math.min(dist2, Math.sqrt(dxi * dxi + dyi * dyi));
+      }
+      var x1 = targets[i].px;
+      var y1 = targets[i].py;
+      var x2 = x1 + Math.round(dist2 * Math.cos(radian));
+      var y2 = y1 + Math.round(dist2 * Math.sin(radian));
+      var final = targets[i].adjustPosition(x2, y2);
+      dx = final.x - x1;
+      dy = final.y - y1;
+      var lastDirectionFix = targets[i].isDirectionFixed();
+      var prevRadian = targets[i]._radian;
+      targets[i].setDirectionFix(true);
+	  //this._character.setMoveSpeed(spd);
+	  $gameSwitches.setValue(4, false)
+	  targets[i].setMoveSpeed(-Number(action[2]));
+      targets[i].pixelJump(dx, dy);
+      targets[i].setDirectionFix(lastDirectionFix);
+      targets[i].setRadian(prevRadian);
+	  //targets[i].setMoveSpeed(Number(movespeeddefault+($gameVariables.value(movespeedvariables)/movespeedad)));
+	  $gameSwitches.setValue(4, true)
+    }
+  };
+  
+  //跳跃可以有距离加成
+    Skill_Sequencer.prototype.userJumpdistance = function(action) {
+    var dist = Number(action[1])+$gameVariables.value(53)	|| 0;
+    var x1 = this._character.px;
+    var y1 = this._character.py;
+    var radian = oldRadian = this._character._radian;
+    if (action[0] === 'backward') {
+      radian -= Math.PI;
+    }
+    var x2 = x1 + Math.cos(radian) * dist;
+    var y2 = y1 + Math.sin(radian) * dist;
+    var final = this._character.adjustPosition(x2, y2);
+    var dx = final.x - x1;
+    var dy = final.y - y1;
+    var lastDirectionFix = this._character.isDirectionFixed();
+    if (action[0] === 'backward') {
+      this._character.setDirectionFix(true);
+    }
+    this._character.pixelJump(dx, dy);
+    this._character.setDirectionFix(lastDirectionFix);
+    this._character.setRadian(oldRadian);
+    this._waitForUserJump = action[2] ? action[2] === 'true' : false;
+  };
   //技能增项----------------------------------------------------------------------------------------------------
- //  //二连击速度加成
- //    Skill_Sequencer.prototype.userSpeeddoubleslash = function(action) {
- //    var amt = Number(action[1]) || 1;
- //    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(62))*0.1;
- //    if (action[0] === 'inc') {
- //      this._character.setMoveSpeed(spd + amt);
- //    } else if (action[0] === 'dec') {
- //      this._character.setMoveSpeed(spd - amt);
- //    }
- //  };
- //  //冲锋
- //      Skill_Sequencer.prototype.userSpeedchongfeng = function(action) {
- //    var amt = Number(action[1]) || 1;
- //    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(71))*0.07;
- //    if (action[0] === 'inc') {
- //      this._character.setMoveSpeed(spd + amt);
- //    } else if (action[0] === 'dec') {
- //      this._character.setMoveSpeed(spd - amt);
- //    }
- //  };
- //    //冲锋
- //      Skill_Sequencer.prototype.userSpeedjufengquan = function(action) {
- //    var amt = Number(action[1]) || 1;
- //    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(278))*0.07;
- //    if (action[0] === 'inc') {
- //      this._character.setMoveSpeed(spd + amt);
- //    } else if (action[0] === 'dec') {
- //      this._character.setMoveSpeed(spd - amt);
- //    }
- //  };
- //  //裂地拳
- //        Skill_Sequencer.prototype.userSpeedliediquan = function(action) {
- //    var amt = Number(action[1]) || 1;
- //    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(268))/5;
- //    if (action[0] === 'inc') {
-	// 	if(spd>=0){
-	// 		this._character.setMoveSpeed(spd + amt)
-	// 		}else{
-	// 		this._character.setMoveSpeed(spd - amt)
-	// 		};
+  //二连击速度加成
+    Skill_Sequencer.prototype.userSpeeddoubleslash = function(action) {
+    var amt = Number(action[1]) || 1;
+    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(62))*0.1;
+    if (action[0] === 'inc') {
+      this._character.setMoveSpeed(spd + amt);
+    } else if (action[0] === 'dec') {
+      this._character.setMoveSpeed(spd - amt);
+    }
+  };
+  //冲锋
+      Skill_Sequencer.prototype.userSpeedchongfeng = function(action) {
+    var amt = Number(action[1]) || 1;
+    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(71))*0.07;
+    if (action[0] === 'inc') {
+      this._character.setMoveSpeed(spd + amt);
+    } else if (action[0] === 'dec') {
+      this._character.setMoveSpeed(spd - amt);
+    }
+  };
+    //冲锋
+      Skill_Sequencer.prototype.userSpeedjufengquan = function(action) {
+    var amt = Number(action[1]) || 1;
+    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(278))*0.07;
+    if (action[0] === 'inc') {
+      this._character.setMoveSpeed(spd + amt);
+    } else if (action[0] === 'dec') {
+      this._character.setMoveSpeed(spd - amt);
+    }
+  };
+  //裂地拳
+        Skill_Sequencer.prototype.userSpeedliediquan = function(action) {
+    var amt = Number(action[1]) || 1;
+    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(268))/5;
+    if (action[0] === 'inc') {
+		if(spd>=0){
+			this._character.setMoveSpeed(spd + amt)
+			}else{
+			this._character.setMoveSpeed(spd - amt)
+			};
       
- //    } else if (action[0] === 'dec') {
- //      if(spd>=0){
-	// 	  this._character.setMoveSpeed(spd - amt)
-	// 	  }else{
-	// 	  this._character.setMoveSpeed(spd + amt)
-	// 	  };
- //    }
- //  };
- //    //追风
- //      Skill_Sequencer.prototype.userSpeedzhuifeng = function(action) {
- //    var amt = Number(action[1]) || 1;
- //    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(259))*0.07;
- //    if (action[0] === 'inc') {
- //      this._character.setMoveSpeed(spd + amt);
- //    } else if (action[0] === 'dec') {
- //      this._character.setMoveSpeed(spd - amt);
- //    }
- //  };
- //   //拳击术等级
- //    Skill_Sequencer.prototype.actionWaitquanjishu = function(action) {
- //    var duration = Number(action[0])*(10/($gameActors.actor($gameVariables.value(1)).stsCount(251)+10));
- //    ColliderManager.draw(this._skill.collider, duration);
- //    this._waitCount = duration;
- //  };
- //    //拳啸飓风等级
- //    Skill_Sequencer.prototype.actionWaitjufengquan = function(action) {
- //    var duration = Number(action[0])*(10/($gameActors.actor($gameVariables.value(1)).stsCount(279)+10));
- //    ColliderManager.draw(this._skill.collider, duration);
- //    this._waitCount = duration;
- //  };
- //  //圆弧剑气距离
- //    Skill_Sequencer.prototype.actionMoveyuanhujianqi = function(action) {
- //    var dir = action[0];
- //    var distance = Number(action[1]);
- //    var duration = Number(action[2]);
- //    ColliderManager.draw(this._skill.collider, duration);
- //    var radian = this._skill.radian;
- //    if (dir === 'backward') {
- //      radian -= Math.PI;
- //    }
- //    radian += radian < 0 ? Math.PI * 2 : 0;
- //    this._waitForMove = action[3] === 'true';
- //    this.setSkillRadian(Number(radian));
- //    this.actionMoveSkillyuanhujianqi(distance, duration);
- //  };
+    } else if (action[0] === 'dec') {
+      if(spd>=0){
+		  this._character.setMoveSpeed(spd - amt)
+		  }else{
+		  this._character.setMoveSpeed(spd + amt)
+		  };
+    }
+  };
+    //追风
+      Skill_Sequencer.prototype.userSpeedzhuifeng = function(action) {
+    var amt = Number(action[1]) || 1;
+    var spd = this._character.moveSpeed()+ ($gameActors.actor($gameVariables.value(1)).stsCount(259))*0.07;
+    if (action[0] === 'inc') {
+      this._character.setMoveSpeed(spd + amt);
+    } else if (action[0] === 'dec') {
+      this._character.setMoveSpeed(spd - amt);
+    }
+  };
+   //拳击术等级
+    Skill_Sequencer.prototype.actionWaitquanjishu = function(action) {
+    var duration = Number(action[0])*(10/($gameActors.actor($gameVariables.value(1)).stsCount(251)+10));
+    ColliderManager.draw(this._skill.collider, duration);
+    this._waitCount = duration;
+  };
+    //拳啸飓风等级
+    Skill_Sequencer.prototype.actionWaitjufengquan = function(action) {
+    var duration = Number(action[0])*(10/($gameActors.actor($gameVariables.value(1)).stsCount(279)+10));
+    ColliderManager.draw(this._skill.collider, duration);
+    this._waitCount = duration;
+  };
+  //圆弧剑气距离
+    Skill_Sequencer.prototype.actionMoveyuanhujianqi = function(action) {
+    var dir = action[0];
+    var distance = Number(action[1]);
+    var duration = Number(action[2]);
+    ColliderManager.draw(this._skill.collider, duration);
+    var radian = this._skill.radian;
+    if (dir === 'backward') {
+      radian -= Math.PI;
+    }
+    radian += radian < 0 ? Math.PI * 2 : 0;
+    this._waitForMove = action[3] === 'true';
+    this.setSkillRadian(Number(radian));
+    this.actionMoveSkillyuanhujianqi(distance, duration);
+  };
   
-	// Skill_Sequencer.prototype.actionMoveSkillyuanhujianqi = function(distance, duration) {
- //    var instant = duration === 0;
- //    if (duration <= 0) duration = 1;
- //    this._skill.newX = this._skill.collider.x + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.cos(this._skill.radian));
- //    this._skill.newY = this._skill.collider.y + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.sin(this._skill.radian));
- //    this._skill.speed = Math.abs(distance / duration);
- //    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
- //    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
- //    this._skill.moving = true;
- //    if (instant) {
- //      this.updateSkillPosition();
- //    }
- //  };
-//破魔斩
-	// Skill_Sequencer.prototype.actionMovepomiezhan = function(action) {
- //    var dir = action[0];
- //    var distance = Number(action[1]);
- //    var duration = Number(action[2]);
- //    ColliderManager.draw(this._skill.collider, duration);
- //    var radian = this._skill.radian;
- //    if (dir === 'backward') {
- //      radian -= Math.PI;
- //    }
- //    radian += radian < 0 ? Math.PI * 2 : 0;
- //    this._waitForMove = action[3] === 'true';
- //    this.setSkillRadian(Number(radian));
- //    this.actionMoveSkillpomiezhan(distance, duration);
- //  };
+  Skill_Sequencer.prototype.actionMoveSkillyuanhujianqi = function(distance, duration) {
+    var instant = duration === 0;
+    if (duration <= 0) duration = 1;
+    this._skill.newX = this._skill.collider.x + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.cos(this._skill.radian));
+    this._skill.newY = this._skill.collider.y + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.sin(this._skill.radian));
+    this._skill.speed = Math.abs(distance / duration);
+    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
+    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
+    this._skill.moving = true;
+    if (instant) {
+      this.updateSkillPosition();
+    }
+  };
+  //破魔斩
+      Skill_Sequencer.prototype.actionMovepomiezhan = function(action) {
+    var dir = action[0];
+    var distance = Number(action[1]);
+    var duration = Number(action[2]);
+    ColliderManager.draw(this._skill.collider, duration);
+    var radian = this._skill.radian;
+    if (dir === 'backward') {
+      radian -= Math.PI;
+    }
+    radian += radian < 0 ? Math.PI * 2 : 0;
+    this._waitForMove = action[3] === 'true';
+    this.setSkillRadian(Number(radian));
+    this.actionMoveSkillpomiezhan(distance, duration);
+  };
   
- //  Skill_Sequencer.prototype.actionMoveSkillpomiezhan = function(distance, duration) {
- //    var instant = duration === 0;
- //    if (duration <= 0) duration = 1;
- //    this._skill.newX = this._skill.collider.x + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(93))/50) * Math.cos(this._skill.radian));
- //    this._skill.newY = this._skill.collider.y + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(93))/50) * Math.sin(this._skill.radian));
- //    this._skill.speed = Math.abs(distance / duration);
- //    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
- //    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
- //    this._skill.moving = true;
- //    if (instant) {
- //      this.updateSkillPosition();
- //    }
- //  };
- //    //耀星斩
- //      Skill_Sequencer.prototype.actionMoveyaoxingzhan = function(action) {
- //    var dir = action[0];
- //    var distance = Number(action[1]);
- //    var duration = Number(action[2]-($gameActors.actor($gameVariables.value(1)).stsCount(107)));
- //    ColliderManager.draw(this._skill.collider, duration);
- //    var radian = this._skill.radian;
- //    if (dir === 'backward') {
- //      radian -= Math.PI;
- //    }
- //    radian += radian < 0 ? Math.PI * 2 : 0;
- //    this._waitForMove = action[3] === 'true';
- //    this.setSkillRadian(Number(radian));
- //    this.actionMoveSkillyaoxingzhan(distance, duration);
- //  };
+  Skill_Sequencer.prototype.actionMoveSkillpomiezhan = function(distance, duration) {
+    var instant = duration === 0;
+    if (duration <= 0) duration = 1;
+    this._skill.newX = this._skill.collider.x + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(93))/50) * Math.cos(this._skill.radian));
+    this._skill.newY = this._skill.collider.y + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(93))/50) * Math.sin(this._skill.radian));
+    this._skill.speed = Math.abs(distance / duration);
+    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
+    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
+    this._skill.moving = true;
+    if (instant) {
+      this.updateSkillPosition();
+    }
+  };
+    //耀星斩
+      Skill_Sequencer.prototype.actionMoveyaoxingzhan = function(action) {
+    var dir = action[0];
+    var distance = Number(action[1]);
+    var duration = Number(action[2]-($gameActors.actor($gameVariables.value(1)).stsCount(107)));
+    ColliderManager.draw(this._skill.collider, duration);
+    var radian = this._skill.radian;
+    if (dir === 'backward') {
+      radian -= Math.PI;
+    }
+    radian += radian < 0 ? Math.PI * 2 : 0;
+    this._waitForMove = action[3] === 'true';
+    this.setSkillRadian(Number(radian));
+    this.actionMoveSkillyaoxingzhan(distance, duration);
+  };
 
   
- //  Skill_Sequencer.prototype.actionMoveSkillyaoxingzhan = function(distance, duration) {
- //    var instant = duration === 0;
- //    if (duration <= 0) duration = 1;
- //    this._skill.newX = this._skill.collider.x + Math.round(distance * Math.cos(this._skill.radian));
- //    this._skill.newY = this._skill.collider.y + Math.round(distance * Math.sin(this._skill.radian));
- //    this._skill.speed = Math.abs(distance / duration);
- //    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
- //    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
- //    this._skill.moving = true;
- //    if (instant) {
- //      this.updateSkillPosition();
- //    }
- //  };
- //      //花火
- //      Skill_Sequencer.prototype.actionMovehuahuo = function(action) {
- //    var dir = action[0];
- //    var distance = Number(action[1]);
- //    var duration = Number(action[2]*(1-$gameActors.actor($gameVariables.value(1)).stsCount(160)/30));
- //    ColliderManager.draw(this._skill.collider, duration);
- //    var radian = this._skill.radian;
- //    if (dir === 'backward') {
- //      radian -= Math.PI;
- //    }
- //    radian += radian < 0 ? Math.PI * 2 : 0;
- //    this._waitForMove = action[3] === 'true';
- //    this.setSkillRadian(Number(radian));
- //    this.actionMoveSkillhuahuo(distance, duration);
- //  };
+  Skill_Sequencer.prototype.actionMoveSkillyaoxingzhan = function(distance, duration) {
+    var instant = duration === 0;
+    if (duration <= 0) duration = 1;
+    this._skill.newX = this._skill.collider.x + Math.round(distance * Math.cos(this._skill.radian));
+    this._skill.newY = this._skill.collider.y + Math.round(distance * Math.sin(this._skill.radian));
+    this._skill.speed = Math.abs(distance / duration);
+    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
+    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
+    this._skill.moving = true;
+    if (instant) {
+      this.updateSkillPosition();
+    }
+  };
+      //花火
+      Skill_Sequencer.prototype.actionMovehuahuo = function(action) {
+    var dir = action[0];
+    var distance = Number(action[1]);
+    var duration = Number(action[2]*(1-$gameActors.actor($gameVariables.value(1)).stsCount(160)/30));
+    ColliderManager.draw(this._skill.collider, duration);
+    var radian = this._skill.radian;
+    if (dir === 'backward') {
+      radian -= Math.PI;
+    }
+    radian += radian < 0 ? Math.PI * 2 : 0;
+    this._waitForMove = action[3] === 'true';
+    this.setSkillRadian(Number(radian));
+    this.actionMoveSkillhuahuo(distance, duration);
+  };
 
   
- //  Skill_Sequencer.prototype.actionMoveSkillhuahuo = function(distance, duration) {
- //    var instant = duration === 0;
- //    if (duration <= 0) duration = 1;
- //    this._skill.newX = this._skill.collider.x + Math.round(distance * Math.cos(this._skill.radian));
- //    this._skill.newY = this._skill.collider.y + Math.round(distance * Math.sin(this._skill.radian));
- //    this._skill.speed = Math.abs(distance / duration);
- //    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
- //    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
- //    this._skill.moving = true;
- //    if (instant) {
- //      this.updateSkillPosition();
- //    }
- //  };
- //    //圆弧剑气距离
- //    Skill_Sequencer.prototype.actionMoveyuanhujianqi = function(action) {
- //    var dir = action[0];
- //    var distance = Number(action[1]);
- //    var duration = Number(action[2]);
- //    ColliderManager.draw(this._skill.collider, duration);
- //    var radian = this._skill.radian;
- //    if (dir === 'backward') {
- //      radian -= Math.PI;
- //    }
- //    radian += radian < 0 ? Math.PI * 2 : 0;
- //    this._waitForMove = action[3] === 'true';
- //    this.setSkillRadian(Number(radian));
- //    this.actionMoveSkillyuanhujianqi(distance, duration);
- //  };
+  Skill_Sequencer.prototype.actionMoveSkillhuahuo = function(distance, duration) {
+    var instant = duration === 0;
+    if (duration <= 0) duration = 1;
+    this._skill.newX = this._skill.collider.x + Math.round(distance * Math.cos(this._skill.radian));
+    this._skill.newY = this._skill.collider.y + Math.round(distance * Math.sin(this._skill.radian));
+    this._skill.speed = Math.abs(distance / duration);
+    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
+    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
+    this._skill.moving = true;
+    if (instant) {
+      this.updateSkillPosition();
+    }
+  };
+    //圆弧剑气距离
+    Skill_Sequencer.prototype.actionMoveyuanhujianqi = function(action) {
+    var dir = action[0];
+    var distance = Number(action[1]);
+    var duration = Number(action[2]);
+    ColliderManager.draw(this._skill.collider, duration);
+    var radian = this._skill.radian;
+    if (dir === 'backward') {
+      radian -= Math.PI;
+    }
+    radian += radian < 0 ? Math.PI * 2 : 0;
+    this._waitForMove = action[3] === 'true';
+    this.setSkillRadian(Number(radian));
+    this.actionMoveSkillyuanhujianqi(distance, duration);
+  };
   
- //  Skill_Sequencer.prototype.actionMoveSkillyuanhujianqi = function(distance, duration) {
- //    var instant = duration === 0;
- //    if (duration <= 0) duration = 1;
- //    this._skill.newX = this._skill.collider.x + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.cos(this._skill.radian));
- //    this._skill.newY = this._skill.collider.y + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.sin(this._skill.radian));
- //    this._skill.speed = Math.abs(distance / duration);
- //    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
- //    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
- //    this._skill.moving = true;
- //    if (instant) {
- //      this.updateSkillPosition();
- //    }
- //  };
- //  //重击 释放速度
- //    Skill_Sequencer.prototype.actionWaitzhongji = function(action) {
- //    var duration = Number(action[0])-($gameActors.actor($gameVariables.value(1)).stsCount(67)*1.2);
- //    ColliderManager.draw(this._skill.collider, duration);
- //    this._waitCount = duration;
- //  };
+  Skill_Sequencer.prototype.actionMoveSkillyuanhujianqi = function(distance, duration) {
+    var instant = duration === 0;
+    if (duration <= 0) duration = 1;
+    this._skill.newX = this._skill.collider.x + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.cos(this._skill.radian));
+    this._skill.newY = this._skill.collider.y + Math.round(distance*(1+($gameActors.actor($gameVariables.value(1)).stsCount(75))/100) * Math.sin(this._skill.radian));
+    this._skill.speed = Math.abs(distance / duration);
+    this._skill.speedX = Math.abs(this._skill.speed * Math.cos(this._skill.radian));
+    this._skill.speedY = Math.abs(this._skill.speed * Math.sin(this._skill.radian));
+    this._skill.moving = true;
+    if (instant) {
+      this.updateSkillPosition();
+    }
+  };
+  //重击 释放速度
+    Skill_Sequencer.prototype.actionWaitzhongji = function(action) {
+    var duration = Number(action[0])-($gameActors.actor($gameVariables.value(1)).stsCount(67)*1.2);
+    ColliderManager.draw(this._skill.collider, duration);
+    this._waitCount = duration;
+  };
 
- //  Skill_Sequencer.prototype.actionWaveSkill = function(amp, harmonics, distance, duration) {
- //    this._skill.amp = amp;
- //    this._skill.distance = distance;
- //    this._skill.waveLength = harmonics * Math.PI;
- //    this._skill.waveSpeed = this._skill.waveLength / duration;
- //    this._skill.theta = 0;
- //    this._skill.xi = this._skill.collider.x;
- //    this._skill.yi = this._skill.collider.y;
- //    this._skill.waving = true;
- //    this._skill.moving = true;
- //  };
+  Skill_Sequencer.prototype.actionWaveSkill = function(amp, harmonics, distance, duration) {
+    this._skill.amp = amp;
+    this._skill.distance = distance;
+    this._skill.waveLength = harmonics * Math.PI;
+    this._skill.waveSpeed = this._skill.waveLength / duration;
+    this._skill.theta = 0;
+    this._skill.xi = this._skill.collider.x;
+    this._skill.yi = this._skill.collider.y;
+    this._skill.waving = true;
+    this._skill.moving = true;
+  };
 
 //-----------------------------------------------------------------------------
 // Game_Interpreter
@@ -3362,30 +3305,7 @@ function Game_ABSAction() {
     return 60;
   };
 
-  Game_Battler.prototype.updateStateSteps = function(state) {//改动于20200202 @DreaMaker.夜
-	if (state.meta.anim){
-  		if (this._charaId > 0){
-  			if ($gameMap._events[this._charaId].isAnimationPlaying()){
-  			}else{
-  				$gameMap._events[this._charaId].requestAnimation(state.meta.anim);
-  			}  					
-  		}else{
-  			if ($gamePlayer.isAnimationPlaying()){  				
-  			}else{
-  				$gamePlayer.requestAnimation(state.meta.anim);
-  			};
-  		};
-  	};
-	if (state.meta.pose){
-		// pose, lock, pause, looping, canBreak)
-  		if (this._charaId > 0){
-  				$gameMap._events[this._charaId].playPose(String(state.meta.pose),false,false,true,true);
-		}else{
-  				$gamePlayer.playPose(String(state.meta.pose),false,false,true,true);
-  			};
-	};
-  
-			
+  Game_Battler.prototype.updateStateSteps = function(state) {
     if (!state.removeByWalking) return;
     if (this._stateSteps[state.id] >= 0) {
       if (this._stateSteps[state.id] % this.stepsForTurn() === 0) {
@@ -3397,7 +3317,6 @@ function Game_ABSAction() {
       this._stateSteps[state.id]--;
     }
   };
-  
 
   Game_Battler.prototype.showAddedStates = function() {
     // TODO
@@ -3507,9 +3426,9 @@ function Game_ABSAction() {
     QABSManager.startPopup('QABS-LEVEL', {
       x: $gamePlayer.cx(),
       y: $gamePlayer.cy(),
-      string: '等级提升'
+      string: 'Level Up!'
     })
-    // QABSManager.requestAnimation(149, $gamePlayer.cx(), $gamePlayer.cy());
+    QABSManager.startAnimation(QABS.levelAnimation, $gamePlayer.cx(), $gamePlayer.cy());
   };
 
   Game_Actor.prototype.onPlayerWalk = function() {

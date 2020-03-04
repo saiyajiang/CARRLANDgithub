@@ -2674,8 +2674,8 @@ Window_Options.prototype.makeCommandList = function() {
 };
 
 Window_Options.prototype.addGeneralOptions = function() {
-    this.addCommand(TextManager.alwaysDash, 'alwaysDash');
-    this.addCommand(TextManager.commandRemember, 'commandRemember');
+   // this.addCommand(TextManager.alwaysDash, 'alwaysDash');
+   // this.addCommand(TextManager.commandRemember, 'commandRemember');
 };
 
 Window_Options.prototype.addVolumeOptions = function() {
@@ -4177,9 +4177,9 @@ Window_EventItem.prototype.constructor = Window_EventItem;
 
 Window_EventItem.prototype.initialize = function(messageWindow) {
     this._messageWindow = messageWindow;
-    var width = Graphics.boxWidth;
+    var width = 720//Graphics.boxWidth;
     var height = this.windowHeight();
-    Window_ItemList.prototype.initialize.call(this, 0, 0, width, height);
+    Window_ItemList.prototype.initialize.call(this, 360, 720, width, height); //
     this.openness = 0;
     this.deactivate();
     this.setHandler('ok',     this.onOk.bind(this));
@@ -4204,9 +4204,9 @@ Window_EventItem.prototype.start = function() {
 
 Window_EventItem.prototype.updatePlacement = function() {
     if (this._messageWindow.y >= Graphics.boxHeight / 2) {
-        this.y = 0;
+        this.y = 720;
     } else {
-        this.y = Graphics.boxHeight - this.height;
+        this.y = 720//Graphics.boxHeight - this.height;
     }
 };
 

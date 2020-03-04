@@ -339,10 +339,10 @@ function Sprite_BossGauge() {
     var font = this.getFontSettings();
     this._name.bitmap = new Bitmap(this._width, font.size + 4);
     this._name.bitmap.fontFace = font.face;
-    this._name.bitmap.fontSize = font.size-3;
+    this._name.bitmap.fontSize = font.size;
     this._name.bitmap.textColor = font.color;
     this._name.x = -this._width/2;
-    this._name.y = this._height - 4 ;
+    this._name.y = this._height - 8;
     this._name.anchor.y = 1;
     this.addChild(this._name);
   };

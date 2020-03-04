@@ -554,7 +554,6 @@ Scene_Map.prototype.create = function() {
     this._transfer = $gamePlayer.isTransferring();
     var mapId = this._transfer ? $gamePlayer.newMapId() : $gameMap.mapId();
     DataManager.loadMapData(mapId);
-
 };
 
 Scene_Map.prototype.isReady = function() {
@@ -595,7 +594,6 @@ Scene_Map.prototype.update = function() {
     }
     this.updateWaitCount();
     Scene_Base.prototype.update.call(this);
-
 };
 
 Scene_Map.prototype.updateMainMultiply = function() {
@@ -1000,6 +998,7 @@ Scene_Menu.prototype.createGoldWindow = function() {
     this._goldWindow.y = Graphics.boxHeight - this._goldWindow.height;
     this.addWindow(this._goldWindow);
 };
+
 Scene_Menu.prototype.createStatusWindow = function() {
     this._statusWindow = new Window_MenuStatus(this._commandWindow.width, 0);
     this._statusWindow.reserveFaceImages();
@@ -1016,6 +1015,7 @@ Scene_Menu.prototype.commandPersonal = function() {
     this._statusWindow.activate();
     this._statusWindow.setHandler('ok',     this.onPersonalOk.bind(this));
     this._statusWindow.setHandler('cancel', this.onPersonalCancel.bind(this));
+	//this.onPersonalOk();            /*<<<*/
 };
 
 Scene_Menu.prototype.commandFormation = function() {
@@ -1198,14 +1198,22 @@ Scene_ItemBase.prototype.isItemEffectsValid = function() {
 Scene_ItemBase.prototype.applyItem = function() {
     var action = new Game_Action(this.user());
     action.setItemObject(this.item());
+    action.apply($gameParty.members()[0]); /*<<<*/
+ 
+    action.applyGlobal();
+};
+
+/*
+Scene_ItemBase.prototype.applyItem = function() {
+    var action = new Game_Action(this.user());
+    action.setItemObject(this.item());
     this.itemTargetActors().forEach(function(target) {
         for (var i = 0; i < action.numRepeats(); i++) {
             action.apply(target);
         }
     }, this);
     action.applyGlobal();
-};
-
+*/
 Scene_ItemBase.prototype.checkCommonEvent = function() {
     if ($gameTemp.isCommonEventReserved()) {
         SceneManager.goto(Scene_Map);
@@ -1276,7 +1284,9 @@ Scene_Item.prototype.onCategoryOk = function() {
 
 Scene_Item.prototype.onItemOk = function() {
     $gameParty.setLastItem(this.item());
-    this.determineItem();
+	                this.useItem();              /*<<<*/
+                this._itemWindow.activate(); /*<<<*/
+    //this.determineItem();
 };
 
 Scene_Item.prototype.onItemCancel = function() {

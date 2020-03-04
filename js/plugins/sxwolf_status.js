@@ -67,7 +67,7 @@ Window_Status.prototype.drawBlock2 = function() {
     this.drawActorNameStatus(this._actor, 172, y+12,'center');
     this.drawActorClass( this._actor , 172, y+48);
     var lineHeight = this.lineHeight();
-    this.drawActorLevel(this._actor, 296, y+48 + lineHeight * 0);
+    this.drawActorLevel(this._actor, 248, y+48 + lineHeight * 0);
     //this.drawActorIcons(this._actor, x, y + lineHeight * 1);
     this.drawActorHp(this._actor, 172, y+48 + lineHeight * 1);
     this.drawActorMp(this._actor, 172, y+48 + lineHeight * 2);
@@ -224,7 +224,7 @@ Window_Status.prototype.drawEquipments = function() {
 	 var e=1
 	 /////////////////////////////////////////////////////////////////////////////////////////
      this.changeTextColor(systemcolor);
-	 this.drawText('混沌:', xe, ye+lineeheight*linee, 0);
+	 this.drawText('物理:', xe, ye+lineeheight*linee, 0);
 	 if(this._actor.elementRate(e)<=1){
 		 this.changeTextColor('#80FF80');
 	 }else{

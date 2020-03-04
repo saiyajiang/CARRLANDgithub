@@ -1,0 +1,23 @@
+<quest1>
+name:Unknown
+level:1
+category:All
+difficulty:Easy
+autoComplete:false
+canAbandon:true
+forceAccept:false
+forceTurnin:false
+qgiverName:Unknown
+location:Unknown
+<description>
+Nothing.
+<description>
+<objectives>
+<objectives>
+gold:0
+exp:0
+expScale:0
+<rewards>
+{type:"item", id:1, amount:1}
+<rewards>
+<quest1>
